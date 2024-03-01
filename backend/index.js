@@ -3,10 +3,11 @@ const app = express();
 import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-dotenv.config({ path: "./config.env" });
-// import "./DB/connection.js";
+dotenv.config({ path: ".env" })
+import "./db/connection.js";
+import { projectRoute, userRoute } from "./routes/index.js";
 
-const PORT = 5000;
+const PORT = process.env.DEVELOPMENT_PORT;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -14,6 +15,8 @@ app.get("/", (req, res) => {
   res.send("<code>Welcome to ProMage app</code> ");
 });
 
+app.use(userRoute)
+app.use(projectRoute)
 
 
 app.listen(PORT, (req, res) => {
