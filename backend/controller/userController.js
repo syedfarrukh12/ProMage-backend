@@ -1,4 +1,5 @@
 import User from "../model/userSchema.js";
+import { createLog } from "../utils/utils.js";
 
 export const getUsers = async (req, res) => {
   try {
@@ -31,9 +32,11 @@ export const createUser = async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
     const newUser = new User({ firstName, lastName, email, password });
     const savedUser = await newUser.save();
+    createLog(`Created User ${firstName + ' '+ lastName}`, 'success')
     res.status(201).json(savedUser);
   } catch (error) {
     console.error(error);
+    createLog(`An error occurred while creating the user | ${error}`, 'failure')
 
     if (error.code === 11000 && error.keyValue) {
       const duplicateField = Object.keys(error.keyValue)[0];
@@ -56,10 +59,12 @@ export const updateUser = async (req, res) => {
     if (!updatedUser) {
       res.status(404).json("User not found");
     } else {
+      createLog(`Updated User ${firstName + ' '+ lastName}`, 'success')
       res.status(200).json(updatedUser);
     }
   } catch (error) {
     console.error(error);
+    createLog(`An error occurred while updating the user | ${error}`, 'failure')
     res.status(500).send("An error occurred while updating the user");
   }
 };
@@ -72,10 +77,12 @@ export const deleteUser = async (req, res) => {
     if (!deletedUser) {
       res.status(404).json("User not found");
     } else {
+      createLog(`Updated User ${deletedUser.firstName + ' '+ deletedUser.lastName}`, 'success')
       res.status(200).json({ message: "Account successfully deleted" });
     }
   } catch (error) {
     console.error(error);
+    createLog(`An error occurred while deleting the user | ${error}`, 'failure')
     res.status(500).send("An error occurred while deleting the user");
   }
 };

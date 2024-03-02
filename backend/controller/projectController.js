@@ -1,6 +1,7 @@
 import Project from "../model/projectSchema.js";
 import User from "../model/userSchema.js";
 import { sendEmail } from "../utils/mailer.js";
+import { createLog } from "../utils/utils.js";
 
 export const getAllProjects = async (req, res) => {
   try {
@@ -65,9 +66,11 @@ export const createProject = async (req, res) => {
       text: `${user.firstName} Created project ${name} just now!`
     }
     sendEmail(message, user)
+    createLog(`Created Project ${name}`, 'success')
     res.status(200).json(savedProject);
   } catch (error) {
     console.error(error);
+    createLog(`An error occurred while creating the project`, 'failure')
     res.status(500).send("An error occurred while creating the project");
   }
 };
@@ -92,10 +95,12 @@ export const updateProject = async (req, res) => {
         text: `Project ${name} just got updated now!`
       }
       sendEmail(message, user)
+      createLog(`Created Project ${name}`, 'success')
       res.status(200).json(project);
     }
   } catch (error) {
     console.error(error);
+    createLog(`An error occurred while creating the project |  ${error}`, 'failure')
     res.status(500).send("An error occurred while updating the project");
   }
 };
@@ -108,10 +113,12 @@ export const deleteProject = async (req, res) => {
     if (!project) {
       res.status(404).json("Cannot find project");
     } else {
+      createLog(`Deleted Project ${project.name}`, 'success')
       res.status(200).json("Project deleted successfully");
     }
   } catch (error) {
     console.error(error);
+    createLog(`An error occurred while creating the project |  ${error}`, 'failure')
     res.status(500).send("An error occurred while deleting the project");
   }
 };

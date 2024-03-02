@@ -1,4 +1,5 @@
 import Task from "../model/taskSchema.js";
+import { createLog } from "../utils/utils.js";
 
 export const getTasks = async (req, res) => {
   try {
@@ -24,10 +25,12 @@ export const createTask = async (req, res) => {
       createdAt,
     });
 
-    await task.save(); // Use await for cleaner asynchronous handling
+    await task.save();
+    createLog(`Created Task ${description}`, 'success')
     res.status(200).json(task);
   } catch (error) {
     console.error(error);
+    createLog(`An error occurred while creating the task | ${error}`, 'failure')
     res.status(500).send("An error occurred while creating the task");
   }
 };
@@ -49,9 +52,11 @@ export const updateTask = async (req, res) => {
     task.endDate = endDate ?? task.endDate;
 
     const updatedTask = await task.save();
+    createLog(`Updated Task ${description}`, 'success')
     res.status(200).json(updatedTask);
   } catch (error) {
     console.error(error);
+    createLog(`An error occurred while updating the task | ${error}`, 'failure')
     res.status(500).send("An error occurred while updating the task");
   }
 };
@@ -66,9 +71,11 @@ export const deleteTask = async (req, res) => {
       return res.status(404).send("Task not found");
     }
 
+    createLog(`deleted Task ${task.description}`, 'success')
     res.status(200).json("Task deleted successfully");
   } catch (error) {
     console.error(error);
+    createLog(`An error occurred while deleting the task | ${error}`, 'failure')
     res.status(500).send("An error occurred while deleting the task");
   }
 };
