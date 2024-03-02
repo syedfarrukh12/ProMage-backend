@@ -1,4 +1,6 @@
 import Project from "../model/projectSchema.js";
+import User from "../model/userSchema.js";
+import { sendEmail } from "../utils/mailer.js";
 
 export const getAllProjects = async (req, res) => {
   try {
@@ -56,6 +58,13 @@ export const createProject = async (req, res) => {
     });
 
     const savedProject = await project.save();
+
+    const user = await User.findOne({_id: manager})
+    const message = {
+      subject: `Created Project by ${user.firstName}`,
+      text: `${user.firstName} Created project ${name} just now!`
+    }
+    sendEmail(message, user)
     res.status(200).json(savedProject);
   } catch (error) {
     console.error(error);
@@ -66,16 +75,23 @@ export const createProject = async (req, res) => {
 export const updateProject = async (req, res) => {
   try {
     const id = req.params.id;
-    const { name, description, manager, startDate, endDate, isRunning } = req.body;
+    const { name, description, manager, startDate, endDate} = req.body;
     const project = await Project.findByIdAndUpdate(
       id,
-      { name, description, manager, startDate, endDate, isRunning },
+      { name, description, manager, startDate, endDate },
       { new: true }
     );
 
     if (!project) {
       res.status(404).json("Cannot find project");
     } else {
+
+      const user = await User.findOne({_id: manager})
+      const message = {
+        subject: `Updated Project`,
+        text: `Project ${name} just got updated now!`
+      }
+      sendEmail(message, user)
       res.status(200).json(project);
     }
   } catch (error) {
