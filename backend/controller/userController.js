@@ -1,83 +1,81 @@
 import User from "../model/userSchema.js";
 
 export const getUsers = async (req, res) => {
-    const users = await User.find()
-    if (users){
-        res.status(200).json(users)
-    }else {
-        res.status(500).send("An error occurred while retrieving users")
-    }
+  try {
+    const users = await User.find();
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while retrieving users");
+  }
 };
 
 export const getUser = async (req, res) => {
-  const id = req.params.id;
+  try {
+    const id = req.params.id;
+    const user = await User.findById(id);
 
-  User.findById(id)
-    .then((user) => {
-      if (!user) {
-        res.status(404).json("User not found");
-      } else {
-        res.status(200).json(user);
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send("An error occurred while retrieving the user");
-    });
+    if (!user) {
+      res.status(404).json("User not found");
+    } else {
+      res.status(200).json(user);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while retrieving the user");
+  }
 };
 
 export const createUser = async (req, res) => {
-    try {
-        const { firstName, lastName, email, password } = req.body;
-        const newUser = new User({ firstName, lastName, email, password });
+  try {
+    const { firstName, lastName, email, password } = req.body;
+    const newUser = new User({ firstName, lastName, email, password });
+    const savedUser = await newUser.save();
+    res.status(201).json(savedUser);
+  } catch (error) {
+    console.error(error);
 
-        const savedUser = await newUser.save();
-        res.status(201).json(savedUser);
-
-    } catch (error) {
-        console.error(error);
-
-        if (error.code === 11000 && error.keyValue) {
-            const duplicateField = Object.keys(error.keyValue)[0];
-            res.status(400).json(`Duplicate ${duplicateField} entered.`);
-        } else {
-            res.status(500).json("An unexpected error occurred.");
-        }
+    if (error.code === 11000 && error.keyValue) {
+      const duplicateField = Object.keys(error.keyValue)[0];
+      res.status(400).json(`Duplicate ${duplicateField} entered.`);
+    } else {
+      res.status(500).json("An unexpected error occurred.");
     }
+  }
 };
 
-export const updateUser = (req, res) => {
-  const { firstName, lastName, email, password } = req.body;
+export const updateUser = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password } = req.body;
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { firstName, lastName, email, password },
+      { new: true }
+    );
 
-  User.findOneAndUpdate(
-    { email },
-    { firstName, lastName, email, password },
-    { new: true }
-  )
-    .then((updatedUser) => {
-      if (!updatedUser) {
-        return res.status(404).send("User not found");
-      }
+    if (!updatedUser) {
+      res.status(404).json("User not found");
+    } else {
       res.status(200).json(updatedUser);
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send("An error occurred while updating the user");
-    });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while updating the user");
+  }
 };
 
-export const deleteUser = (req, res) => {
-  const { id } = req.params;
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedUser = await User.findByIdAndDelete(id);
 
-  User.findByIdAndDelete(id)
-    .then((deletedUser) => {
-      if (!deletedUser) {
-        return res.status(404).send("User not found");
-      }
+    if (!deletedUser) {
+      res.status(404).json("User not found");
+    } else {
       res.status(200).json({ message: "Account successfully deleted" });
-    })
-    .catch((error) => {
-      console.error(error);
-      res.status(500).send("An error occurred while updating the user");
-    });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("An error occurred while deleting the user");
+  }
 };
