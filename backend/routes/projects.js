@@ -5,7 +5,7 @@ const router = Router();
 
 router.get("/projects", getAllProjects);
 router.get("/projects/:userId", getProjects);
-router.get("/projects/:id/:userId", getProject);
+router.get("/project/:id", getProject);
 router.post("/projects", createProject);
 router.put("/projects/:id", updateProject);
 router.delete("/projects/:id", deleteProject);

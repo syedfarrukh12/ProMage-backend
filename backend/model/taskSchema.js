@@ -10,13 +10,15 @@ const taskSchema = new Schema({
   project: {
     type: Schema.Types.ObjectId,
     ref: "Project",
-    required: "true",
+    required: true,
   },
   startDate: {
     type: Date,
+    required: true,
   },
   endDate: {
     type: Date,
+    required: true,
   },
   createdAt: {
     type: Date,

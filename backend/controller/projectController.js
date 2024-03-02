@@ -2,18 +2,18 @@ import Project from "../model/projectSchema.js";
 
 export const getAllProjects = async (req, res) => {
   try {
-    const projects = await Project.find();
+    const projects = await Project.find().populate('manager');
     if (projects){
       res.status(200).json(projects);
     }else{
       res.status(200).json("Cannot Find Projects");
     }
-    
   } catch (error) {
     console.error(error);
     res.status(500).send("An error occurred while retrieving projects");
   }
 };
+
 
 export const getProjects = async (req, res) => {
   try {
@@ -33,9 +33,8 @@ export const getProjects = async (req, res) => {
 
 export const getProject = async (req, res) => {
   const id = req.params.id;
-  const userId = req.params.userId;
 
-  Project.findOne({_id: id, manager: userId})
+  Project.findOne({_id: id}).populate('manager')
     .then((project) => {
       if (!project) {
         res.status(404).json("Project not found");
@@ -50,7 +49,7 @@ export const getProject = async (req, res) => {
 };
 
 export const createProject = async (req, res) => {
-  const { name, description, manager, startDate, endDate, isRunning } = req.body;
+  const { name, description, manager, startDate, endDate } = req.body;
 
   try{
     const project = new Project({
@@ -58,8 +57,7 @@ export const createProject = async (req, res) => {
       description,
       manager,
       startDate,
-      endDate,
-      isRunning
+      endDate
     });
   
     project
